@@ -301,22 +301,46 @@ prepare_makefile ()
     done
 }
 
-store()
+get_dep_reco () #pass the name
 {
-    line[$1]="$@:2"
-}
-
-get_dep_reco()
-{
-    if [ "${assolved[$0]}" != 1 ]
+    a=($(awk '$1=="'$1'"{print NR,$0}' temp_Makefile))
+    if [ ${#a[@]} == 0 ] && [ "$1" != "ORI_SOURCE" ]
     then
-	local dep=($@:2)
+	echo "Unable to find line $1"
+	exit
+    fi
+
+    local iline=${a[0]}
+    local name=${a[1]}
+    local ins=${a[2]}
+    local dep=${a[@]:3}
+    
+    echo $trailer"Found $name on line $iline, ins $ins, deps: $dep" >&2
+    
+    if [ "${assolved[$iline]}" != 1 ]
+    then
+
+	#mark as done
+	assolved[$iline]=1
 	
-	for i in ${dep[@]}
+     	for i in $dep
 	do
-	    get_dep_reco $i
+	    if [ $i != "ORI_SOURCE" ]
+	    then
+		#prepend a .
+		trailer=".$trailer"
+		
+		get_dep_reco $i
+	    fi
 	done
+		
+    	#print the computation
+	echo $name $ins $dep
+
+	#munge the .
+	trailer=$(echo $trailer|sed 's|^.||')
 	
-	assolved[$0]=1
+    else
+	echo $trailer"Dep $i was assolved" >&2
     fi
 }
