@@ -377,7 +377,7 @@ decorate_line ()
 	    *) weight="1.0";;
 	esac
        	
-     	echo -e "\\t$sou\\t$weight"
+     	echo -e "\\t\\t$sou\\t$weight"
     done
 
     charge=0.0
@@ -387,9 +387,9 @@ decorate_line ()
     
     if [ $ins == "-" ]
     then
-	echo -e "\\t\\t\\t\\t-1\\t$kappa\\t${m[$im]}\\t$r\\t$charge\\t$theta\\t$residue\\t$store"
+	echo -e "\\t\\t\\t\\t\\t-1\\t$kappa\\t${m[$im]}\\t$r\\t$charge\\t$theta\\t$residue\\t$store"
     else
-	echo -e "\\t\\t\\t\\t-1\\t\\t\\t$r\\t$charge\\t\\t\\t$store"
+	echo -e "\\t\\t\\t\\t\\t-1\\t\\t\\t$r\\t$charge\\t\\t\\t$store"
     fi
     echo "/* ///////////////////////////////////////////////////////////////// */"
 }
