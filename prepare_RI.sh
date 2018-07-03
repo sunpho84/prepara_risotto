@@ -2,26 +2,39 @@
 
 . lib.sh
 
-# rm -fr list_*.txt
-# list_assolved_up_to=0
-# next_new_list=0
+nm=1
+nr=1
+im=0
+r=0
+kappa=0.125
+m=(0.0)
+deltam_cr=(0.0)
+deltam_tm=(0.0)
+im_r=$(($r+$nr*$im))
 
-# add_list RI_QED
-# add_list QED
-# add_list RI
-# add_list PH
-# add_list QCD
+rm -fr list_*.txt
+list_assolved_up_to=0
+next_new_list=0
 
-# assolve_lists
+add_list RI_QED
+add_list QED
+add_list RI
+add_list PH
+add_list QCD
 
-# prepare_graph > graph.txt
-# dot -Tpng > "graph.png" < graph.txt
+assolve_lists
 
-# prepare_makefile > temp_Makefile
+prepare_graph > graph.txt
+dot -Tpng > "graph.png" < graph.txt
 
-for i in $(awk '{print $1}' temp_Makefile)
-do
-    get_dep_reco $i
-done
+makefile=$(tempfile)
+prepare_makefile > $makefile
+mv $makefile Makefile
 
-#rm -fr temp_Makefile
+makefile=$(tempfile)
+reorder_dependency > $makefile
+mv $makefile Makefile
+
+makefile=$(tempfile)
+cat Makefile|mapfile -C decorate_line -c 1 arr > $makefile
+mv $makefile Makefile

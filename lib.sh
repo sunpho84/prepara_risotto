@@ -276,34 +276,37 @@ prepare_makefile ()
 	ins=$(grep "# Insert" $f|awk '{print $3}')
         
 	sources=$(grep Need $f | awk '{print "_"$10}')
+
+	skip=0
 	
-	#get result name
-	if printf "%f" $ins 2> /dev/null >&2
+	#get result name if a number is found
+	if isnum $ins
 	then
-	    out=$i
-	    for is in $(seq 0 $((${#label_sed[@]}-1)))
-	    do
-		out=$(echo $out|sed 's|'$is'|'${label_sed[$is]}'|')
-		ins="S"
-	    done
-	else
-	    out=_$i
+	    skip=1
+	    replace=$replace"s|$sources|${label_sed[$ins]}|g;"
 	fi
 	
 	#get original source
 	if [ "$ins" == "E" ]
 	then
-	    ins=S
-	    sources="ORI_SOURCE"
+	    skip=1
+	    replace=$replace"s|_$i|ORI_SOURCE|g;"
 	fi
-	
-	echo $out $ins $sources
-    done
+
+	if [ $skip != 1 ]
+	then
+	    echo _$i $ins $sources
+	fi
+    done > temp
+
+    sed "$replace" temp
+
+    rm temp
 }
 
 get_dep_reco () #pass the name
 {
-    a=($(awk '$1=="'$1'"{print NR,$0}' temp_Makefile))
+    a=($(awk '$1=="'$1'"{print NR,$0}' Makefile))
     if [ ${#a[@]} == 0 ] && [ "$1" != "ORI_SOURCE" ]
     then
 	echo "Unable to find line $1"
@@ -335,7 +338,7 @@ get_dep_reco () #pass the name
 	done
 		
     	#print the computation
-	echo $name $ins $dep
+	echo -e $name\\t$ins\\t$dep
 
 	#munge the .
 	trailer=$(echo $trailer|sed 's|^.||')
@@ -343,4 +346,50 @@ get_dep_reco () #pass the name
     else
 	echo $trailer"Dep $i was assolved" >&2
     fi
+}
+
+reorder_dependency ()
+{
+    for i in $(awk '{print $1}' Makefile)
+    do
+	get_dep_reco $i
+    done
+}
+
+decorate_line ()
+{
+    data=($@)
+    out=${data[1]}
+    ins=${data[2]}
+    echo -e "$out\\t$ins\\tLINCOMB\\t$((${#data[@]}-3))"
+    
+    for sou in ${data[@]:3}
+    do
+     	prev_ins=$(grep ^$sou Makefile|awk '{print $2}')
+
+	case $prev_ins in
+	    P)
+		tau3=(-1 +1)
+		coef=$(echo "${tau3[$r]}*${deltam_cr[$im_r]}"|bc -l)
+		weight="(0.0,$coef)";;
+	    S)
+		weight=$(echo "-${deltam_tm[$im_r]}"|bc -l);;
+	    *) weight="1.0";;
+	esac
+       	
+     	echo -e "\\t$sou\\t$weight"
+    done
+
+    charge=0.0
+    theta=0.0
+    residue=1e-14
+    store=0
+    
+    if [ $ins == "-" ]
+    then
+	echo -e "\\t\\t\\t\\t-1\\t$kappa\\t${m[$im]}\\t$r\\t$charge\\t$theta\\t$residue\\t$store"
+    else
+	echo -e "\\t\\t\\t\\t-1\\t\\t\\t$r\\t$charge\\t\\t\\t$store"
+    fi
+    echo "/* ///////////////////////////////////////////////////////////////// */"
 }
