@@ -38,3 +38,5 @@ mv $makefile Makefile
 makefile=$(tempfile)
 cat Makefile|mapfile -C decorate_line -c 1 arr > $makefile
 mv $makefile Makefile
+
+sed -i 's|^QCD|S_M0_R0_0|g;s|^RI_QED|S_M0_R0_RI_QED|g;s|^RI|S_M0_R0_RI|g;s|^QED|S_M0_R0_QED|g;s|^PH|S_M0_R0_PH|g' Makefile prop_out.txt
