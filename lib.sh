@@ -1,5 +1,28 @@
 #!/bin/bash
 
+get_e2_weight ()
+{
+    case $1 in
+	S|T|P) echo 2;;
+	F) echo  1;;
+	''|V) echo  0;;
+	*)
+	    echo "Unknown pattern \"$1\""
+	    exit
+    esac	
+}
+
+get_V_weight ()
+{
+    case $1 in
+	S|T|P|F|'') echo 0;;
+	'V') echo  1;;
+	*)
+	    echo "Unknown pattern \"$1\""
+	    exit
+    esac	
+}
+
 prepare_list_RI ()
 {
  echo $1-V-E
@@ -25,56 +48,14 @@ prepare_list_RI_QED ()
 	    do
 		str=$(echo "-$i-$j-$k-"|sed 's|---|-|g;s|--|-|g')
 		
-		p=1
-		
-		#remove repeated
-		for s in F T S P V
-		do
-		    if [ $s == F ]
-		    then
-			need=2
-		    else
-			need=1
-		    fi
-		    
-		    n=$(echo $str|grep $s -o|wc -l)
-		    
-		    if [ $n -ne $need ] && [ $n -ne 0 ]
-		    then
-			p=0
-		    fi
-		    
-		done
-		
-		#remove higher order
-		count=0
-		for s in F T S P
-		do
-		    count=$(($count+$(echo $str|grep $s -o|uniq|wc -l)))
-		done
-		
-		if [ $count -gt 1 ]
-		then
-		    p=0
-		fi
-		
-		#suppress T with others
-		if [ "$i" == T ] || [ "$j" == T ] || [ "$k" == T ]
-		then
-		    if [ "$i" == F ] || [ "$j" == F ] || [ "$k" == F ]
-		    then
-			p=0
-		    fi
-		fi
-		
-		if [ $p == 1 ]
+		if [ $(($(get_e2_weight "$i") + $(get_e2_weight "$j") + $(get_e2_weight "$k"))) == 2 ] && [ $(($(get_V_weight "$i") + $(get_V_weight "$j") + $(get_V_weight "$k"))) == 1 ]
 		then
 		    echo $1$str"E"
 		fi
 		
 	    done
 	done
-    done|grep V|sort|uniq
+    done|sort|uniq
 }    
 
 prepare_list_QED ()
@@ -83,56 +64,15 @@ prepare_list_QED ()
     do
 	for j in '' F T S P
 	do
-	    str=$(echo "-$i-$j-$k-"|sed 's|---|-|g;s|--|-|g')
-	    p=1
+	    str=$(echo "-$i-$j-"|sed 's|--|-|g')
 	    
-	    #remove repeated
-	    for s in F T S P
-	    do
-		if [ $s == F ]
-		then
-		    need=2
-		else
-		    need=1
-		fi
-		
-		n=$(echo $str|grep $s -o|wc -l)
-		
-		if [ $n -ne $need ] && [ $n -ne 0 ]
-		then
-		    p=0
-		fi
-		
-	    done
-	    
-	    #remove higher order
-	    count=0
-	    for s in F T S P
-	    do
-		count=$(($count+$(echo $str|grep $s -o|uniq|wc -l)))
-	    done
-	    
-	    if [ $count -gt 1 ]
-	    then
-		p=0
-	    fi
-	    
-	    #suppress T with others
-	    if [ "$i" == T ] || [ "$j" == T ] || [ "$k" == T ]
-	    then
-		if [ "$i" == F ] || [ "$j" == F ] || [ "$k" == F ]
-		then
-		    p=0
-		fi
-	    fi
-	    
-	    if [ $p == 1 ]
+	    if [ $(($(get_e2_weight "$i") + $(get_e2_weight "$j"))) == 2 ]
 	    then
 		echo $1$str"E"
 	    fi
 	    
 	done
-    done|awk '$1!=""'|sort|uniq
+    done|sort|uniq
 }    
 
 prepare_new_list ()
