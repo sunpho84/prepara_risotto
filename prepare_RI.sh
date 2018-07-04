@@ -39,4 +39,7 @@ makefile=$(tempfile)
 cat Makefile|mapfile -C decorate_line -c 1 arr > $makefile
 mv $makefile Makefile
 
-sed -i 's|^QCD|S_M0_R0_0|g;s|^RI_QED|S_M0_R0_RI_QED|g;s|^RI|S_M0_R0_RI|g;s|^QED|S_M0_R0_QED|g;s|^PH|S_M0_R0_PH|g' Makefile prop_out.txt
+for i in $(cat prop_out.txt)
+do
+    sed -i 's|[^_]'$i'|S_M0_R0_'$i'|g;s|^'$i'|S_M0_R0_'$i'|' Makefile prop_out.txt
+done
