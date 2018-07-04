@@ -7,7 +7,7 @@ prepare_list_RI ()
 
 prepare_list_PH ()
 {
- echo $1-A-E
+ echo $1-F-E
 }
 
 prepare_list_QCD ()
@@ -17,20 +17,20 @@ prepare_list_QCD ()
 
 prepare_list_RI_QED ()
 {
-    for i in  '' A T S P V
+    for i in  '' F T S P V
     do
-	for j in '' A T S P V
+	for j in '' F T S P V
 	do
-	    for k in '' A T S P V
+	    for k in '' F T S P V
 	    do
 		str=$(echo "-$i-$j-$k-"|sed 's|---|-|g;s|--|-|g')
 		
 		p=1
 		
 		#remove repeated
-		for s in A T S P V
+		for s in F T S P V
 		do
-		    if [ $s == A ]
+		    if [ $s == F ]
 		    then
 			need=2
 		    else
@@ -48,7 +48,7 @@ prepare_list_RI_QED ()
 		
 		#remove higher order
 		count=0
-		for s in A T S P
+		for s in F T S P
 		do
 		    count=$(($count+$(echo $str|grep $s -o|uniq|wc -l)))
 		done
@@ -61,7 +61,7 @@ prepare_list_RI_QED ()
 		#suppress T with others
 		if [ "$i" == T ] || [ "$j" == T ] || [ "$k" == T ]
 		then
-		    if [ "$i" == A ] || [ "$j" == A ] || [ "$k" == A ]
+		    if [ "$i" == F ] || [ "$j" == F ] || [ "$k" == F ]
 		    then
 			p=0
 		    fi
@@ -79,17 +79,17 @@ prepare_list_RI_QED ()
 
 prepare_list_QED ()
 {
-    for i in  '' A T S P
+    for i in  '' F T S P
     do
-	for j in '' A T S P
+	for j in '' F T S P
 	do
 	    str=$(echo "-$i-$j-$k-"|sed 's|---|-|g;s|--|-|g')
 	    p=1
 	    
 	    #remove repeated
-	    for s in A T S P
+	    for s in F T S P
 	    do
-		if [ $s == A ]
+		if [ $s == F ]
 		then
 		    need=2
 		else
@@ -107,7 +107,7 @@ prepare_list_QED ()
 	    
 	    #remove higher order
 	    count=0
-	    for s in A T S P
+	    for s in F T S P
 	    do
 		count=$(($count+$(echo $str|grep $s -o|uniq|wc -l)))
 	    done
@@ -120,7 +120,7 @@ prepare_list_QED ()
 	    #suppress T with others
 	    if [ "$i" == T ] || [ "$j" == T ] || [ "$k" == T ]
 	    then
-		if [ "$i" == A ] || [ "$j" == A ] || [ "$k" == A ]
+		if [ "$i" == F ] || [ "$j" == F ] || [ "$k" == F ]
 		then
 		    p=0
 		fi
@@ -156,13 +156,15 @@ add_list ()
     label_sed[$next_new_list]=$1
     prepare_list_$1  >  ori_list_${1}.txt    $next_new_list
     prepare_new_list $1 $next_new_list ori_list_${1}.txt
+    
+    echo $1 >> prop_out.txt
 }    
 
 assolve_lists ()
 {
     while [ $list_assolved_up_to -lt $next_new_list ]
     do
-	for i in A P S T V - E
+	for i in F P S T V - E
 	do
 	    echo "Checking if needed to insert $i for list $list_assolved_up_to"
 	    dependency=""
@@ -235,7 +237,7 @@ prepare_graph ()
 	ins=$(grep "# Insert" $f|awk '{print $3}')
 	
 	#label
-	label=$(echo $ins|sed 's|-|prop|;s|V|vect|;s|P|pseudo|;s|T|tadpole|;s|A|photon|;s|S|scalar|;s|E|SOURCE|')
+	label=$(echo $ins|sed 's|-|prop|;s|V|vect|;s|P|pseudo|;s|T|tadpole|;s|F|photon|;s|S|scalar|;s|E|SOURCE|')
 	
 	#transform label for result
 	for is in $(seq 0 $((${#label_sed[@]}-1)))
@@ -361,7 +363,7 @@ decorate_line ()
     data=($@)
     out=${data[1]}
     ins=${data[2]}
-    echo -e "$out\\t$ins\\tLINCOMB\\t$((${#data[@]}-3))"
+    echo -e "$out\\t\\t$ins\\tLINCOMB\\t$((${#data[@]}-3))"
     
     for sou in ${data[@]:3}
     do
@@ -377,7 +379,7 @@ decorate_line ()
 	    *) weight="1.0";;
 	esac
        	
-     	echo -e "\\t\\t$sou\\t$weight"
+     	echo -e "\\t\\t\\t$sou $weight"
     done
 
     charge=0.0
@@ -387,7 +389,7 @@ decorate_line ()
     
     if [ $ins == "-" ]
     then
-	echo -e "\\t\\t\\t\\t\\t-1\\t$kappa\\t${m[$im]}\\t$r\\t$charge\\t$theta\\t$residue\\t$store"
+	echo -e "\\t\\t\\t\\t\\t-1\\t$(printf %.6f $kappa)\\t${m[$im]}\\t$r\\t$charge\\t$theta\\t$residue\\t$store"
     else
 	echo -e "\\t\\t\\t\\t\\t-1\\t\\t\\t$r\\t$charge\\t\\t\\t$store"
     fi

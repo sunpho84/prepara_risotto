@@ -12,7 +12,7 @@ deltam_cr=(0.0)
 deltam_tm=(0.0)
 im_r=$(($r+$nr*$im))
 
-rm -fr list_*.txt
+rm -fr list_*.txt prop_out.txt
 list_assolved_up_to=0
 next_new_list=0
 
