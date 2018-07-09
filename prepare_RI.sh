@@ -1,7 +1,7 @@
 #!/bin/bash
 
-#PS4=':$LINENO+'
-#set -x
+# PS4=':$LINENO+'
+# set -x
 
 fullfill ()
 {
@@ -11,16 +11,16 @@ fullfill ()
     
     for i in $(cat prop_out.txt)
     do
-	sed -i 's/\(^\|\ \|\t\)'$i'/S_M'$im'_R'$r'_'$i'/' Makefile
+    	sed -i 's/\(^\|\ \|\t\)'$i'/S_M'$im'_R'$r'_'$i'/' Makefile
     done
     
     for i in $(seq 0 $list_assolved_up_to)
     do
-	sed -i 's/\(^\|\ \|\t\)_'$i'/S_M'$im'_R'$r'_'$i'/' Makefile
+    	sed -i 's/\(^\|\ \|\t\)_'$i'/S_M'$im'_R'$r'_'$i'/' Makefile
     done
-    
+
     #QCD -> 0
-    sed -i 's|QCD|0|g' Makefile
+    sed -i 's|_QCD|_0|g;s|FOT|F|' Makefile
 }
 
 . lib.sh
@@ -38,7 +38,7 @@ next_new_list=0
 # add_list RI_QED 3
 add_list QED
 #add_list RI
-add_list F
+add_list FOT
 add_list QCD
 
 assolve_lists
@@ -65,10 +65,38 @@ do
     
 	fullfill
 	cat Makefile >> $makefile_glb
-#	cp Makefile Makefile_${im}_${r}
+
+	#fft list
+	for p in $(sed 's|QCD|0|;s|FOT|F|' prop_out.txt)
+	do
+	    echo "S_M${im}_R${r}_"$p
+	done >&8
+	
     done
-done
+done 8> fft_list.txt
 
 rm ref_Makefile
 
 mv $makefile_glb Makefile
+
+#meson list
+for((im1=0;im1<$nm;im1++))
+do
+    for((r1=0;r1<$nr;r1++))
+    do
+	A=M${im1}_R${r1}
+	
+	for((im2=0;im2<$nm;im2++))
+	do
+	    for((r2=0;r2<$nr;r2++))
+	    do
+		B=M${im2}_R${r2}
+		
+		echo "${A}_0_${B}_0               S_${A}_0         S_${B}_0"
+		echo "${A}_F_${B}_F               S_${A}_F         S_${B}_F "
+		echo "${A}_0_${B}_QED             S_${A}_0         S_${B}_QED"
+	    done
+	done
+
+    done
+done > mes_list.txt

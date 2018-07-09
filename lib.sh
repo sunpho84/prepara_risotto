@@ -45,7 +45,7 @@ prepare_list_RI ()
     echo $1-$(get_RI_ins $2)-E
 }
 
-prepare_list_F ()
+prepare_list_FOT ()
 {
     echo $1-F-E
 }
@@ -335,7 +335,7 @@ decorate_line ()
     
     for sou in ${data[@]:3}
     do
-     	prev_ins=$(grep ^$sou Makefile|awk '{print $2}')
+     	prev_ins=$(grep ^$sou ref_Makefile|awk '{print $2}')
 
 	case $prev_ins in
 	    P)
