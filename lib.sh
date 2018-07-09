@@ -5,9 +5,9 @@ get_e2_weight ()
     case $1 in
 	S|T|P) echo 2;;
 	F) echo  1;;
-	''|V) echo  0;;
+	''|V|W|X|Y|Z) echo  0;;
 	*)
-	    echo "Unknown pattern \"$1\""
+	    echo "Unknown pattern \"$1\"" >&2
 	    exit
     esac	
 }
@@ -16,35 +16,52 @@ get_V_weight ()
 {
     case $1 in
 	S|T|P|F|'') echo 0;;
-	'V') echo  1;;
+	V|W|X|Y|Z) echo  1;;
 	*)
-	    echo "Unknown pattern \"$1\""
+	    echo "Unknown pattern \"$1\"" >&2
 	    exit
     esac	
 }
 
-prepare_list_RI ()
+get_RI_ins ()
 {
- echo $1-V-E
+    if [ "$1" == "" ]
+    then
+	echo V
+    else
+	local ins=(W X Y Z)
+	if [ "$1" -le 3 ] && [ "$1" -ge 0 ]
+	then
+	    echo ${ins[$1]}
+	else
+	    echo "$1 not in the range 0-3" >&2
+	    exit
+	fi
+    fi
 }
 
-prepare_list_PH ()
+prepare_list_RI ()
 {
- echo $1-F-E
+    echo $1-$(get_RI_ins $2)-E
+}
+
+prepare_list_F ()
+{
+    echo $1-F-E
 }
 
 prepare_list_QCD ()
 {
- echo $1-E
+    echo $1-E
 }
 
 prepare_list_RI_QED ()
 {
-    for i in  '' F T S P V
+    for i in  '' F T S P $(get_RI_ins $2)
     do
-	for j in '' F T S P V
+	for j in '' F T S P $(get_RI_ins $2)
 	do
-	    for k in '' F T S P V
+	    for k in '' F T S P $(get_RI_ins $2)
 	    do
 		str=$(echo "-$i-$j-$k-"|sed 's|---|-|g;s|--|-|g')
 		
@@ -93,18 +110,25 @@ prepare_new_list ()
 
 add_list ()
 {
-    label_sed[$next_new_list]=$1
-    prepare_list_$1  >  ori_list_${1}.txt    $next_new_list
-    prepare_new_list $1 $next_new_list ori_list_${1}.txt
+    if [ "$2" == "" ]
+    then
+	name=$1
+    else
+	name=$1\_$(get_RI_ins $2)
+    fi
+    label_sed[$next_new_list]=$name
+
+    prepare_list_$1 $next_new_list $2 >  ori_list_${1}.txt 
+    prepare_new_list $name $next_new_list ori_list_${1}.txt
     
-    echo $1 >> prop_out.txt
+    echo $name >> prop_out.txt
 }    
 
 assolve_lists ()
 {
     while [ $list_assolved_up_to -lt $next_new_list ]
     do
-	for i in F P S T V - E
+	for i in F P S T V W X Y Z - E
 	do
 	    echo "Checking if needed to insert $i for list $list_assolved_up_to"
 	    dependency=""
@@ -177,7 +201,7 @@ prepare_graph ()
 	ins=$(grep "# Insert" $f|awk '{print $3}')
 	
 	#label
-	label=$(echo $ins|sed 's|-|prop|;s|V|vect|;s|P|pseudo|;s|T|tadpole|;s|F|photon|;s|S|scalar|;s|E|SOURCE|')
+	label=$(echo $ins|sed 's|-|prop|;s|V|vect|;s|W|vect_t|;s|X|vect_x|;s|Y|vect_y|;s|Z|vect_z|;s|P|pseudo|;s|T|tadpole|;s|F|photon|;s|S|scalar|;s|E|SOURCE|')
 	
 	#transform label for result
 	for is in $(seq 0 $((${#label_sed[@]}-1)))
@@ -211,11 +235,13 @@ prepare_graph ()
 
 prepare_makefile ()
 {
+    local tempfile=$(tempfile)
+    
     for i in $(seq 0 $(($next_new_list-1)))
     do
 	f=list_$i.txt
 
-	ins=$(grep "# Insert" $f|awk '{print $3}')
+	ins=$(grep "# Insert" $f|awk '{print $3}'|sed 's|W|V0|;s|X|V1|;s|Y|V2|;s|Z|V3|')
         
 	sources=$(grep Need $f | awk '{print "_"$10}')
 
@@ -237,18 +263,18 @@ prepare_makefile ()
 
 	if [ $skip != 1 ]
 	then
-	    echo _$i $ins $sources
+	    echo $1_$i $ins $sources
 	fi
-    done > temp
+    done > $tempfile
 
-    sed "$replace" temp
+    sed "$replace" $tempfile
 
-    rm temp
+    rm $tempfile
 }
 
 get_dep_reco () #pass the name
 {
-    a=($(awk '$1=="'$1'"{print NR,$0}' Makefile))
+    a=($(awk '$1=="'$1'"{print NR,$0}' ref_Makefile))
     if [ ${#a[@]} == 0 ] && [ "$1" != "ORI_SOURCE" ]
     then
 	echo "Unable to find line $1"
@@ -292,7 +318,9 @@ get_dep_reco () #pass the name
 
 reorder_dependency ()
 {
-    for i in $(awk '{print $1}' Makefile)
+    unset assolved
+    
+    for i in $(awk '{print $1}' $1)
     do
 	get_dep_reco $i
     done
@@ -312,10 +340,10 @@ decorate_line ()
 	case $prev_ins in
 	    P)
 		tau3=(-1 +1)
-		coef=$(echo "${tau3[$r]}*${deltam_cr[$im_r]}"|bc -l)
+		coef=$(echo "${tau3[$r]} ${deltam_cr[$im_r]}"|awk '{print $1*$2}')
 		weight="(0.0,$coef)";;
 	    S)
-		weight=$(echo "-${deltam_tm[$im_r]}"|bc -l);;
+		weight=$(echo "-(${deltam_tm[$im_r]})"|bc -l);;
 	    *) weight="1.0";;
 	esac
        	

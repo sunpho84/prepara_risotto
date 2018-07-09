@@ -1,25 +1,44 @@
 #!/bin/bash
 
+#PS4=':$LINENO+'
+#set -x
+
+fullfill ()
+{
+    local makefile=$(tempfile)
+    cat ref_Makefile|mapfile -C decorate_line -c 1 arr > $makefile
+    mv $makefile Makefile
+    
+    for i in $(cat prop_out.txt)
+    do
+	sed -i 's/\(^\|\ \|\t\)'$i'/S_M'$im'_R'$r'_'$i'/' Makefile
+    done
+    
+    for i in $(seq 0 $list_assolved_up_to)
+    do
+	sed -i 's/\(^\|\ \|\t\)_'$i'/S_M'$im'_R'$r'_'$i'/' Makefile
+    done
+    
+    #QCD -> 0
+    sed -i 's|QCD|0|g' Makefile
+}
+
 . lib.sh
 
-nm=1
-nr=1
-im=0
-r=0
-kappa=0.125
-m=(0.0)
-deltam_cr=(0.0)
-deltam_tm=(0.0)
-im_r=$(($r+$nr*$im))
+. pars.sh
 
 rm -fr list_*.txt prop_out.txt
 list_assolved_up_to=0
 next_new_list=0
 
-add_list RI_QED
+# add_list RI_QED
+# add_list RI_QED 0
+# add_list RI_QED 1
+# add_list RI_QED 2
+# add_list RI_QED 3
 add_list QED
-add_list RI
-add_list PH
+#add_list RI
+add_list F
 add_list QCD
 
 assolve_lists
@@ -27,19 +46,29 @@ assolve_lists
 prepare_graph > graph.txt
 dot -Tpng > "graph.png" < graph.txt
 
+#prepare the makefile
 makefile=$(tempfile)
 prepare_makefile > $makefile
-mv $makefile Makefile
+mv $makefile ref_Makefile
 
+#reorder the dependency
 makefile=$(tempfile)
-reorder_dependency > $makefile
-mv $makefile Makefile
+reorder_dependency ref_Makefile> $makefile
+mv $makefile ref_Makefile
 
-makefile=$(tempfile)
-cat Makefile|mapfile -C decorate_line -c 1 arr > $makefile
-mv $makefile Makefile
-
-for i in $(cat prop_out.txt)
+makefile_glb=$(tempfile)
+for((im=0;im<$nm;im++))
 do
-    sed -i 's|[^_]'$i'|S_M0_R0_'$i'|g;s|^'$i'|S_M0_R0_'$i'|' Makefile prop_out.txt
+    for((r=0;r<$nr;r++))
+    do
+	im_r=$(($r+$nr*$im))
+    
+	fullfill
+	cat Makefile >> $makefile_glb
+#	cp Makefile Makefile_${im}_${r}
+    done
 done
+
+rm ref_Makefile
+
+mv $makefile_glb Makefile
