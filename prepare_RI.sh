@@ -100,3 +100,115 @@ do
 
     done
 done > mes_list.txt
+
+cat <<PREPARE
+L 24
+T 48
+WallTime 60
+
+Seed 3625
+StochSource 0
+NHits 1
+
+NSources 1
+Name	 Tins	Store
+ORI_SOURCE 	 0	0
+
+TwistedRun 1
+
+CloverRun 0
+
+NProps $((4+$(grep LINCOMB Makefile|wc -l)))
+
+Name		Ins	SourceName	Tins	Kappa		Mass	R	Charge	Theta	Residue	Store
+PREPARE
+
+cat Makefile
+
+cat<<HALF
+
+/* ///////////////////////////////////////////////////////////////// */
+
+S_Msea_R0_0	-	LINCOMB 1
+		ORI_SOURCE 1.0
+					-1	0.161229	0.0085	0	0	0.0	1e-14	0
+/* ///////////////////////////////////////////////////////////////// */
+
+S_Msea_R1_0	-	LINCOMB 1
+		ORI_SOURCE 1.0
+					-1	0.161229	0.0085	1	0	0.0	1e-14	0
+
+ ZeroModeSubtraction UNNO_ALEMANNA
+
+ PhotonGauge LANDAU
+ PhotonDiscretization WILSON
+
+FreeTheory 0
+RandomGaugeTransform 0
+
+ LandauGaugeFix 1
+ Gauge Landau
+ TargetPrecision 5e-21
+ NMaxIterations 100000
+ UnitarizeEach 100
+ Method Exponentiate
+ AlphaExp 0.16
+ UseAdaptativeSearch 1
+ UseGeneralizedCg 1
+ UseFFTacc 1
+ StoreConf 0
+LocHadrCurr 0
+LocMuonCurr 0
+NMes2PtsContr $((4+$(cat mes_list.txt|wc -l)))
+HALF
+
+cat mes_list.txt
+
+cat<<MES
+Msea_R0_0_Msea_R0_0     S_Msea_R0_0       S_Msea_R0_0
+Msea_R0_0_Msea_R1_0     S_Msea_R0_0       S_Msea_R1_0
+Msea_R1_0_Msea_R0_0     S_Msea_R1_0       S_Msea_R0_0
+Msea_R1_0_Msea_R1_0     S_Msea_R1_0       S_Msea_R1_0
+MES
+
+cat <<CONTR
+NGammaContr 2
+
+V0P5
+P5P5
+
+NMesLepQ1Q2LepmassMesMass 0
+
+NBar2PtsContr 0
+
+NHandcuffsContr 0
+
+NFftProps $(cat fft_list.txt|wc -l)
+CONTR
+
+cat fft_list.txt
+
+cat <<FINAL
+
+NFftRanges 3
+
+L 0 1
+T 0 1
+
+P4FrP22Max 2.00
+
+L 1 2
+T 1 2
+
+P4FrP22Max 2.00
+
+L 0 3
+T 0 7
+
+P4FrP22Max 0.29
+
+
+ApeSmearingAlpha 0
+ApeSmearingNiters 0
+
+FINAL
