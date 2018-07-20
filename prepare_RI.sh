@@ -215,8 +215,8 @@ T 1 2
 
 P4FrP22Max 2.00
 
-L 0 3
-T 0 7
+L 0 ${fft_max_L}
+T 0 ${fft_max_T}
 
 P4FrP22Max 0.29
 
