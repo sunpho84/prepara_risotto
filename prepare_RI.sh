@@ -131,7 +131,7 @@ TwistedRun 1
 
 CloverRun 0
 
-NProps $((4+$(grep LINCOMB Makefile|wc -l)))
+NProps $((2+$(grep LINCOMB Makefile|wc -l)))
 
 Name		Ins	SourceName	Tins	Kappa		Mass	R	Charge	Theta	Residue	Store
 PREPARE
@@ -144,12 +144,12 @@ PREPARE
 
 S_Msea_R0_0	-	LINCOMB 1
 		ORI_SOURCE 1.0
-					-1	$KSEA	$MSEA	0	0	0.0	1e-14	0
+					-1	$ksea	$msea	0	0	0.0	1e-14	0
 /* ///////////////////////////////////////////////////////////////// */
 
 S_Msea_R1_0	-	LINCOMB 1
 		ORI_SOURCE 1.0
-					-1	$KSEA	$MSEA	1	0	0.0	1e-14	0
+					-1	$ksea	$msea	1	0	0.0	1e-14	0
 
  ZeroModeSubtraction UNNO_ALEMANNA
 
@@ -225,6 +225,8 @@ ApeSmearingAlpha 0
 ApeSmearingNiters 0
 
 FINAL
+    
+cat 
 }
 
 prepara_input > input_hadr_new
