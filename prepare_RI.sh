@@ -119,7 +119,7 @@ L $L
 T $T
 WallTime 60
 
-Seed $SEED
+Seed $seed
 StochSource 0
 NHits 1
 
