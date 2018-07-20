@@ -112,7 +112,9 @@ do
     done
 done > mes_list.txt
 
-cat <<PREPARE
+prepara_input ()
+{
+    cat <<PREPARE
 L $L
 T $T
 WallTime 60
@@ -133,10 +135,10 @@ NProps $((4+$(grep LINCOMB Makefile|wc -l)))
 
 Name		Ins	SourceName	Tins	Kappa		Mass	R	Charge	Theta	Residue	Store
 PREPARE
-
-cat Makefile
-
-cat<<HALF
+    
+    cat Makefile
+    
+    cat<<HALF
 
 /* ///////////////////////////////////////////////////////////////// */
 
@@ -173,16 +175,16 @@ LocMuonCurr 0
 NMes2PtsContr $((4+$(cat mes_list.txt|wc -l)))
 HALF
 
-cat mes_list.txt
+    cat mes_list.txt
 
-cat<<MES
+    cat<<MES
 Msea_R0_0_Msea_R0_0     S_Msea_R0_0       S_Msea_R0_0
 Msea_R0_0_Msea_R1_0     S_Msea_R0_0       S_Msea_R1_0
 Msea_R1_0_Msea_R0_0     S_Msea_R1_0       S_Msea_R0_0
 Msea_R1_0_Msea_R1_0     S_Msea_R1_0       S_Msea_R1_0
 MES
 
-cat <<CONTR
+    cat <<CONTR
 NGammaContr 2
 
 V0P5
@@ -196,10 +198,10 @@ NHandcuffsContr 0
 
 NFftProps $(cat fft_list.txt|wc -l)
 CONTR
-
-cat fft_list.txt
-
-cat <<FINAL
+    
+    cat fft_list.txt
+    
+    cat <<FINAL
 
 NFftRanges 3
 
@@ -223,3 +225,6 @@ ApeSmearingAlpha 0
 ApeSmearingNiters 0
 
 FINAL
+}
+
+prepara_input > input_hadr_new
