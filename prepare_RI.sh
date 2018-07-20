@@ -25,7 +25,7 @@ fullfill ()
 
 ORI_PATH="$( cd "$(dirname "$0")" ; pwd -P )"
 
-$ORI_PATH/lib.sh
+. $ORI_PATH/lib.sh
 
 . pars_make.sh
 
