@@ -226,7 +226,7 @@ ApeSmearingNiters 0
 
 FINAL
     
-cat 
+cat conf_list.txt
 }
 
 prepara_input > input_hadr_new
