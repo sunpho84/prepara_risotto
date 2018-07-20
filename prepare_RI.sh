@@ -25,7 +25,7 @@ fullfill ()
 
 . lib.sh
 
-. pars.sh
+. pars_make.sh
 
 rm -fr list_*.txt prop_out.txt
 list_assolved_up_to=0
@@ -102,11 +102,11 @@ do
 done > mes_list.txt
 
 cat <<PREPARE
-L 24
-T 48
+L $L
+T $T
 WallTime 60
 
-Seed 3625
+Seed $SEED
 StochSource 0
 NHits 1
 
@@ -131,12 +131,12 @@ cat<<HALF
 
 S_Msea_R0_0	-	LINCOMB 1
 		ORI_SOURCE 1.0
-					-1	0.161229	0.0085	0	0	0.0	1e-14	0
+					-1	$KSEA	$MSEA	0	0	0.0	1e-14	0
 /* ///////////////////////////////////////////////////////////////// */
 
 S_Msea_R1_0	-	LINCOMB 1
 		ORI_SOURCE 1.0
-					-1	0.161229	0.0085	1	0	0.0	1e-14	0
+					-1	$KSEA	$MSEA	1	0	0.0	1e-14	0
 
  ZeroModeSubtraction UNNO_ALEMANNA
 
