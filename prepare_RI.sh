@@ -144,12 +144,12 @@ PREPARE
 
 S_Msea_R0_0	-	LINCOMB 1
 		ORI_SOURCE 1.0
-					-1	$ksea	$msea	0	0	0.0	1e-14	0
+					-1	$kappa_sea	$msea	0	0	0.0	1e-14	0
 /* ///////////////////////////////////////////////////////////////// */
 
 S_Msea_R1_0	-	LINCOMB 1
 		ORI_SOURCE 1.0
-					-1	$ksea	$msea	1	0	0.0	1e-14	0
+					-1	$kappa_sea	$msea	1	0	0.0	1e-14	0
 
  ZeroModeSubtraction UNNO_ALEMANNA
 
@@ -229,4 +229,4 @@ FINAL
 cat conf_list.txt
 }
 
-prepara_input > input_hadr_new
+prepara_input > input_hadr
