@@ -23,7 +23,9 @@ fullfill ()
     sed -i 's|_QCD|_0|g;s|FOT|F|' Makefile
 }
 
-. lib.sh
+ORI_PATH="$( cd "$(dirname "$0")" ; pwd -P )"
+
+$ORI_PATH/lib.sh
 
 . pars_make.sh
 
