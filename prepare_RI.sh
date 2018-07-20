@@ -3,6 +3,12 @@
 # PS4=':$LINENO+'
 # set -x
 
+#check tempfile
+if ! which tempfile 2> /dev/null >&2
+then
+    alias tempfile=mktemp
+fi
+
 fullfill ()
 {
     local makefile=$(tempfile)
