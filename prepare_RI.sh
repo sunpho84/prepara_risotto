@@ -6,7 +6,10 @@
 #check tempfile
 if ! which tempfile 2> /dev/null >&2
 then
-    alias tempfile=mktemp
+    tempfile ()
+    {
+	mktemp
+    }
 fi
 
 fullfill ()
