@@ -1,3 +1,4 @@
 /Makefile
 *.txt
 *.png
+/pars.sh
